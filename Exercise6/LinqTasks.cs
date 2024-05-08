@@ -173,7 +173,7 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task2()
         {
-            IEnumerable<Emp> result = Emps.OrderByDescending(emp => emp.Job == "Frontend programmer" && emp.Salary > 1000);
+            IEnumerable<Emp> result = Emps.Where(emp => emp.Job == "Frontend programmer" && emp.Salary > 1000).OrderByDescending(emp => emp.Ename);
             return result;
         }
 
@@ -270,14 +270,14 @@ namespace Exercise6
                 {
                     emp.Ename,
                     Job = (string?)emp.Job,
-                    Hiredate = emp.HireDate
+                    emp.HireDate
                 }).Union(new[]
                 {
                     new
                     {
                         Ename = "Brak wartości",
                         Job = (string?)null,
-                        Hiredate = (DateTime?)null
+                        HireDate = (DateTime?)null
                     }
                 });
             return result;
@@ -296,9 +296,10 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task11()
         {
-            IEnumerable<object> result = Emps.GroupBy(emp => emp.Deptno).Where(group => group.Count() > 1).Select(group => new
+            IEnumerable<object> result = Emps.GroupBy(emp => emp.Deptno).Where(group => group.Count() > 1)
+                .Select(group => new
             {
-                name = group.Key,
+                name = Depts.Where(dept => dept.Deptno == group.Key).Select(dept => dept.Dname).First(),
                 numOfEmployees = group.Count()
             });
             return result;
@@ -354,7 +355,7 @@ namespace Exercise6
     {
         public static IEnumerable<Emp> GetEmpsWithSubordinates(this IEnumerable<Emp> emps)
         {
-            return emps.Where(mgr => emps.Count(emp => emp.Mgr != null && emp.Mgr.Empno == mgr.Empno) > 1)
+            return emps.Where(mgr => emps.Count(emp => emp.Mgr != null && emp.Mgr.Empno == mgr.Empno) >= 1)
                 .OrderBy(emp => emp.Ename).ThenByDescending(emp => emp.Salary);
         }
     }
