@@ -341,11 +341,13 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Dept> Task14()
         {
-            IEnumerable<Dept> result = Depts.Where(dept =>
+            IEnumerable<Dept> result = Depts.GroupJoin(Emps, dept => dept.Deptno, emp => emp.Deptno, (dept, emps) => new
             {
-                int count = Emps.Count(emp => emp.Deptno == dept.Deptno);
-                return count == 5 || count == 0;
-            }).OrderBy(dept => dept.Dname);
+                dept,
+                emps
+            })
+            .Where(dept => !dept.emps.Any() || dept.emps.Count() == 5)
+            .Select(join => join.dept);
             //result =
             return result;
         }
@@ -355,7 +357,7 @@ namespace Exercise6
     {
         public static IEnumerable<Emp> GetEmpsWithSubordinates(this IEnumerable<Emp> emps)
         {
-            return emps.Where(mgr => emps.Count(emp => emp.Mgr != null && emp.Mgr.Empno == mgr.Empno) >= 1)
+            return emps.Where(mgr => emps.Any(emp => emp.Mgr?.Empno == mgr.Empno))
                 .OrderBy(emp => emp.Ename).ThenByDescending(emp => emp.Salary);
         }
     }
